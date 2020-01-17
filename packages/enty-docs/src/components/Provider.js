@@ -51,7 +51,7 @@ export default function Provider(props: Props): Node {
         p: ({children}) => <Text as="p" mb={3}>{children}</Text>,
         strong: ({children}) => <Text as="strong" textStyle="strong" my={3}>{children}</Text>,
         pre: props => <div {...props} />,
-        code: CodeBlock,
+        code: (props) => <Box mb={3}><CodeBlock {...props} /></Box>,
         table: (props) => <Box mb={3}><Table {...props} /></Box>,
         th: TableHeadCell,
         td: TableCell,

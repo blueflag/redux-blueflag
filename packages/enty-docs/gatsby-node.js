@@ -46,7 +46,7 @@ exports.createPages = async ({graphql, actions, reporter}) => {
     posts.forEach(({node}, index) => {
         const layouts = {
             api: path.resolve(`./src/components/ApiLayout.js`),
-            tutorial: path.resolve(`./src/components/TutorialLayout.js`)
+            guides: path.resolve(`./src/components/TutorialLayout.js`)
         };
         actions.createPage({
             path: node.fields.slug,

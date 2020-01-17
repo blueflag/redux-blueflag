@@ -13,7 +13,7 @@ type Props = {
 
 function Navigation(props: Props): Node {
     const api = <NavigationLink to="/api/enty/entity-schema" textStyle="navigationLink">Api</NavigationLink>;
-    const tutorial = <NavigationLink to="/guides/getting-started" textStyle="navigationLink">Guides</NavigationLink>;
+    const guides = <NavigationLink to="/guides/getting-started" textStyle="navigationLink">Guides</NavigationLink>;
     const logo = <NavigationLink to="/" textStyle="navigationLink">
         <Flex>
             <Box><img src={Logo} height="24px" alt="Enty" /></Box>
@@ -27,7 +27,7 @@ function Navigation(props: Props): Node {
                 {logo}
                 <Flex>
                     <Box px={2}>{api}</Box>
-                    <Box px={2}>{tutorial}</Box>
+                    <Box px={2}>{guides}</Box>
                 </Flex>
             </Flex>
         </Wrapper>
