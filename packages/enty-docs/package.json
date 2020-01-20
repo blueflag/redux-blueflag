@@ -12,6 +12,7 @@
     "@mdx-js/react": "^1.3.1",
     "babel-plugin-styled-components": "^1.10.6",
     "enty": "^1.0.0-alpha.7",
+    "faker": "^4.1.0",
     "flow-parser": "^0.105.0",
     "fronads": "^0.18.0",
     "gatsby": "^2.13.20",

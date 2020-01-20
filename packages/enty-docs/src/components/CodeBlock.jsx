@@ -1,10 +1,11 @@
 // @flow
-import React, {useContext} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import styled, {ThemeContext} from 'styled-components';
 import {LiveProvider, LiveEditor, LiveError, LivePreview} from 'react-live';
 import {mdx} from '@mdx-js/react'
-import * as Enty from 'enty';
+import * as Enty from 'react-enty';
 import JSONTree from 'react-json-tree';
+import faker from 'faker';
 
 const Editor = styled(LiveEditor)`
     height: 100%;
@@ -91,6 +92,9 @@ export default function CodeBlock(props) {
         scope={{
             mdx,
             JSON: CodeResult,
+            useEffect,
+            useState,
+            faker,
             ...Enty
         }}
     >
