@@ -8,14 +8,13 @@ group: Tutorials
 ```
 yarn add react-enty
 ```
-_Note: the `enty` package only contains the schemas. `react-enty` contains the api, which lets you 
-use those schemas in a react project. React Enty depends on Enty, so you only need to add react 
-enty to your project._
+_Note: the `enty` package only contains the schemas. `react-enty` contains both the schemas and
+the bindings to react._
 
 
 ## 1. Schema
 The first step in implementing Enty is to create your schema. This defines the relationships between
-your entities.  In this example we'll say a user has a list of friends which are also users. 
+your entities. In this example we'll say a user has a list of friends which are also users. 
 
 ```js
 // ApplicationSchema.js
@@ -94,12 +93,17 @@ import Error from './Error';
 
 export default function UserAvatar(props) {
     const {id} = props;
+
+    // Create the message from the hook
     const userMessage = Api.user.get.useRequest();
 
+    // Call the onRequest function if the id changes
     useEffect(() => {
         userMessage.onRequest({id});
     }, [id]);
 
+
+    // Wrap the message in a loading boundary render a fallback while the data is fetching
     return <LoadingBoundary message={userMessage} fallback={Spinner} error={Error}>
         {({user}) => <img src={user.avatar} />}
     </LoadingBoundary>;
@@ -109,10 +113,4 @@ export default function UserAvatar(props) {
 ```
 
 Read more: [RequestHook], [Message], [RequestState]
-
-[Schemas]: /docs/schemas/entity-schema
-[Api]: /docs/api
-[RequestHook]: /api/react-enty/request-hook
-[Message]: /api/react-enty/message
-[RequestState]: /api/react-enty/request-state
 
