@@ -130,8 +130,8 @@ export default withData(User);
 The Enty data flow begins when either a QueryHocked components props change or a MutationHocked component fires its onMutate callback. When this happens the corresponding promise creator in the API is fired. 
 
 2. **Data Request / Receive**  
-The data request actions is triggered and the corresponding queryRequestState becomes a FetchingState. If the promise rejects the Error action is triggered, the requestState becomes an error and the flow finishes. 
-If the promise resolves the receive action is triggered, the requestState becomes a SuccessState. 
+The data request actions is triggered and the corresponding queryRequestState becomes a FetchingState. If the promise rejects the Error action is triggered, the message becomes an error and the flow finishes. 
+If the promise resolves the receive action is triggered, the message becomes a SuccessState. 
 
 3. **Normalize**    
 The payload is passed into schema.normalize, which will in turn call schema.normalize recursively on its children as defined. Entities are stored under their schema type key and the result of their id attribute. Each entity is also passed through their constructor function which is given the current entity and the previous version if it exists. 

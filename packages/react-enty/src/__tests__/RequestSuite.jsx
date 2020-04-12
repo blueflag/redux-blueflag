@@ -83,13 +83,13 @@ expect.extend([
     rr[name] = function(wrapper, expectedResponse) {
         let {printReceived, printExpected} = this.utils;
         let message = wrapper.find('ExpectsMessage').prop('message');
-        let {requestState} = message;
-        let response = requestState.isError ? message.requestError : message.response;
+        let {isError} = message;
+        let response = isError ? message.requestError : message.response;
 
-        let passType = requestState[expectedState];
+        let passType = message[expectedState];
         let passResponse = equals(response)(expectedResponse);
         let pass = passType && passResponse;
-        let type = input.find(([, state]) => requestState[state]) || [];
+        let type = input.find(([, state]) => message[state]) || [];
         return pass
             ? {pass: true, message: () => `expect(wrapper).not.${name}()\n\n` +
                 `Received: ${printReceived(expectedName)}`}

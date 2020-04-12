@@ -26,7 +26,7 @@ export default function RequestHookFactory(context: *, config: RequestHookConfig
         const responseRef = useRef();
         const mounted = useRef(true);
 
-        let message = state.requestState[responseKey] || Message.empty();
+        let message = state.request[responseKey] || Message.empty();
 
         useEffect(() => {
             return () => {

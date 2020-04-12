@@ -5,9 +5,9 @@ import type Message from 'enty-state/lib/data/Message';
 
 import React from 'react';
 
-type Props<R, E> = {
+type Props = {
     children: (response: mixed, {refetching: boolean}) => Node,
-    message: Message<R, E>,
+    message: Message,
     fallbackOnRefetch?: boolean,
     fallback?: ComponentType<*>,
     error?: ComponentType<*>,
@@ -16,7 +16,7 @@ type Props<R, E> = {
 
 const NullRender = () => null;
 
-export default function LoadingBoundary<R, E>(props: Props<R, E>): Node {
+export default function LoadingBoundary(props: Props): Node {
     // Config
     const {children} = props;
     const {message} = props;
@@ -29,9 +29,7 @@ export default function LoadingBoundary<R, E>(props: Props<R, E>): Node {
     const emptyState = () => <Empty />;
     const errorState = () => <Error error={message.requestError} />;
     const fallbackState = () => <Fallback />;
-    const renderState = () => children(message.response, {
-        refetching: message.requestState.isRefetching === true
-    });
+    const renderState = () => children(message.response, {refetching: message.isRefetching === true});
 
     // Render
     return message
