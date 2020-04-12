@@ -15,7 +15,7 @@ it('will let you set responseKey, response,, requestError, request', () => {
         reset,
         responseKey: 'foo',
         response: 'bar',
-        isSuccess: true,
+        requestState: 'success',
         value: 'baz',
         requestError: 'qux',
         removeEntity,
@@ -37,7 +37,8 @@ it('will default to Empty', () => {
         response: null,
         responseKey: 'foo',
         request: Promise.resolve,
-        requestError: null
+        requestError: null,
+        requestState: 'empty'
     }).isEmpty).toBe(true);
 });
 
@@ -228,4 +229,9 @@ describe('request states', () => {
         expect(Message).toHaveProperty('success');
     });
 
+    it('can have its getters destructured', () => {
+        const {isFetching, isSuccess} = Message.success();
+        expect(isFetching).toBe(false);
+        expect(isSuccess).toBe(true);
+    });
 });

@@ -3,19 +3,16 @@ import get from 'unmutable/lib/get';
 import getIn from 'unmutable/lib/getIn';
 
 type Request = (payload: mixed) => any;
+type RequestState = 'empty' | 'fetching' | 'refetching' | 'success' | 'error';
 
 type MessageInput = {
     removeEntity: (type: string, id: string) => void,
     request: Request,
     requestError: any,
+    requestState: RequestState,
     reset: () => void,
     response: any,
     responseKey: string,
-    isEmpty?: ?boolean,
-    isFetching?: ?boolean,
-    isRefetching?: ?boolean,
-    isSuccess?: ?boolean,
-    isError?: ?boolean,
     value?: any
 };
 
@@ -32,11 +29,12 @@ export default class Message {
 
     // RequestState
     value: any;
-    isEmpty: ?boolean;
-    isFetching: ?boolean;
-    isRefetching: ?boolean;
-    isSuccess: ?boolean;
-    isError: ?boolean;
+    requestState: RequestState;
+    isEmpty: boolean;
+    isFetching: boolean;
+    isRefetching: boolean;
+    isSuccess: boolean;
+    isError: boolean;
 
     constructor(props: MessageInput) {
         this.responseKey = props.responseKey;
@@ -46,17 +44,16 @@ export default class Message {
         this.reset = props.reset;
         this.removeEntity = props.removeEntity;
         this.value = props.value;
+        this.requestState = props.requestState;
 
-        const {isEmpty, isFetching, isRefetching, isSuccess, isError} = props;
-        this.isEmpty = isEmpty;
-        this.isFetching = isFetching;
-        this.isRefetching = isRefetching;
-        this.isSuccess = isSuccess;
-        this.isError = isError;
-
-        if(!isFetching && !isRefetching && !isSuccess && !isError) {
-            this.isEmpty = true;
-        }
+        // $FlowFixMe
+        Object.defineProperties(this, {
+            isEmpty: {enumerable: true, get: () => this.requestState === 'empty'},
+            isFetching: {enumerable: true, get: () => this.requestState === 'fetching'},
+            isRefetching: {enumerable: true, get: () => this.requestState === 'refetching'},
+            isSuccess: {enumerable: true, get: () => this.requestState === 'success'},
+            isError: {enumerable: true, get: () => this.requestState === 'error'}
+        });
     }
 
 
@@ -70,11 +67,6 @@ export default class Message {
     getIn(path: string[], notFoundValue: mixed): mixed {
         return getIn(path, notFoundValue)(this.response || {});
     }
-
-    get value() {
-        return this.value;
-    }
-
 
     //
     // Updating Methods
@@ -102,7 +94,7 @@ export default class Message {
         ...messageLike,
         response: undefined,
         requestError: undefined,
-        isEmpty: true
+        requestState: 'empty'
     });
     emptyMap = this._createMap('isEmpty', Message.empty);
     toEmpty = () => Message.empty(this);
@@ -111,28 +103,28 @@ export default class Message {
         ...messageLike,
         response: undefined,
         requestError: undefined,
-        isFetching: true
+        requestState: 'fetching'
     });
     fetchingMap = this._createMap('isFetching', Message.fetching);
     toFetching = () => Message.fetching(this);
 
     static refetching = (messageLike: mixed) => new Message({
         ...messageLike,
-        isRefetching: true
+        requestState: 'refetching'
     });
     refetchingMap = this._createMap('isRefetching', Message.refetching);
     toRefetching = () => Message.refetching(this);
 
     static success = (messageLike: mixed) => new Message({
         ...messageLike,
-        isSuccess: true
+        requestState: 'success'
     });
     successMap = this._createMap('isSuccess', Message.success);
     toSuccess = () => Message.success(this);
 
     static error = (messageLike: mixed) => new Message({
         ...messageLike,
-        isError: true
+        requestState: 'error'
     });
     errorMap = this._createMap('isError', Message.error);
     toError = () => Message.error(this);

@@ -95,7 +95,7 @@ describe('EntityReducer request', () => {
     test('request will not be refecthing if two fetching fire in a row', () => {
         let stateA = EntityReducer({}, {type: 'ENTY_FETCH', meta: {responseKey: 'foo'}});
         let stateB = EntityReducer(stateA, {type: 'ENTY_FETCH', meta: {responseKey: 'foo'}});
-        expect(stateB.request.foo.isRefetching).toBe(undefined);
+        expect(stateB.request.foo.isRefetching).toBe(false);
         expect(stateB.request.foo.isFetching).toBe(true);
     });
 
@@ -333,7 +333,7 @@ describe('ENTY_RESET', () => {
 
         const stateB = reducer(stateA, resetAction('123'));
         expect(stateB.response['123']).toBeUndefined();
-        expect(stateB.request['123'].isSuccess).toBeUndefined();
+        expect(stateB.request['123'].isSuccess).toBe(false);
         expect(stateB.request['123'].isEmpty).toBe(true);
         expect(stateB.stats.responseCount).toBe(2);
     });
