@@ -102,7 +102,7 @@ function User({message}) {
         .refetchingMap(() => <img src={mesage.get('avatar')} />)
         .successMap(() => <img src={mesage.get('avatar')} />)
         .errorMap(() => <Error error={message.requestError} />)
-        .value();
+        .value;
 }
 ```
 
@@ -126,7 +126,7 @@ return requestState
     .successFlatMap(() => validateData(message.response))
     .errorMap(() => 'Error!')
     .successMap(() => 'Success.')
-    .value();
+    .value;
 ```
 With the above example we can wait until the response is a success until we validate a portion of
 the data. But we can still maintain single purpose functions for how to render the data and how to
@@ -142,11 +142,11 @@ Casts a request state to a different type.
 RequestState.fetching('foo')
     .toError()
     .fetchingMap(() => 'bar')
-    .value() // foo
+    .value; // foo
 ```
 
 
-### .value()
+### .value
 **type:** `() => *`   
 
 Returns either the current state of the variant.
@@ -189,7 +189,7 @@ function applyLoader(message) {
 function User({userMessage}) {
     return applyLoader(userMessage)
         .successMap(() => <img src={userMessage.get('avatar')} />)
-        .value();
+        .value;
 }
 ```
 
@@ -207,7 +207,7 @@ return this.props[config.messages]
     .refetchingMap(() => <Loader/>)
     .errorMap(() => <Error error={requestError}/>)
     .successMap(() => <Component {...this.props} />)
-    .value();
+    .value;
 ```
 
 ### Any Success

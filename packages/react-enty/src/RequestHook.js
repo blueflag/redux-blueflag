@@ -1,6 +1,5 @@
 // @flow
 import Message from 'enty-state/lib/data/Message';
-import RequestState from 'enty-state/lib/data/RequestState';
 import {useState, useEffect, useContext, useCallback, useMemo, useRef} from 'react';
 
 type RequestHookConfig = {
@@ -27,7 +26,7 @@ export default function RequestHookFactory(context: *, config: RequestHookConfig
         const responseRef = useRef();
         const mounted = useRef(true);
 
-        let requestState = state.requestState[responseKey] || RequestState.empty();
+        let message = state.requestState[responseKey] || Message.empty();
 
         useEffect(() => {
             return () => {
@@ -44,7 +43,7 @@ export default function RequestHookFactory(context: *, config: RequestHookConfig
             }
             return result;
 
-        }, [requestState, responseKey, state.stats.responseCount]);
+        }, [message, responseKey, state.stats.responseCount]);
 
         responseRef.current = response;
 
@@ -58,14 +57,14 @@ export default function RequestHookFactory(context: *, config: RequestHookConfig
         let removeEntity = useCallback((type, id) => dispatch(removeEntityAction(type, id)));
 
 
-        return useMemo(() => new Message<R>({
+        return useMemo(() => message.update(data => ({
+            ...data,
             removeEntity,
             request,
             requestError: state.error[responseKey],
-            requestState,
             reset,
             response,
             responseKey
-        }), [requestState, response, responseKey]);
+        })), [message, response, responseKey]);
     };
 }

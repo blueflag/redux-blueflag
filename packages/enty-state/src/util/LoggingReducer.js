@@ -14,14 +14,14 @@ export default function LoggingReducer(state: State, action: Action, debugName: 
     group(`${debugName}: ${type}`);
 
     const {responseKey} = meta;
-    const requestState = state.requestState[responseKey];
+    const requestState = state.request[responseKey];
     const requestStateType = requestState && requestState
         .emptyMap(() => 'empty')
         .fetchingMap(() => 'fetching')
         .refetchingMap(() => 'refetching')
         .errorMap(() => 'error')
         .successMap(() => 'success')
-        .value();
+        .value;
 
     if (type === 'ENTY_FETCH') {
         log('responseKey:', responseKey, requestStateType);

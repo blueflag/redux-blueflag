@@ -34,12 +34,12 @@ export default function LoadingBoundary<R, E>(props: Props<R, E>): Node {
     });
 
     // Render
-    return message.requestState
+    return message
         .emptyMap(emptyState)
         .fetchingMap(fallbackState)
         .refetchingMap(fallbackOnRefetch ? fallbackState : renderState)
         .successMap(renderState)
         .errorMap(errorState)
-        .value();
+        .value;
 }
 

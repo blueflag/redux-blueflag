@@ -1,6 +1,6 @@
 //@flow
 import EntityReducerFactory from '../EntityReducerFactory';
-import RequestState from '../data/RequestState';
+import Message from '../data/Message';
 import {EntitySchema, ObjectSchema} from 'enty';
 import get from 'unmutable/lib/get';
 import getIn from 'unmutable/lib/getIn';
@@ -69,56 +69,53 @@ test('EntityReducerFactory normalizes a reuslt', () => {
 });
 
 
-describe('EntityReducer requestState', () => {
-    test('requestState is Fetching when action is _FETCH', () => {
+describe('EntityReducer request', () => {
+    test('request is Fetching when action is _FETCH', () => {
         const data = pipeWith(
             EntityReducer(undefined, {type: 'ENTY_FETCH', meta: {responseKey: 'TEST'}}),
-            getIn(['requestState', 'TEST'])
+            getIn(['request', 'TEST'])
         );
         expect(data.isFetching).toBe(true);
     });
 
-    test('requestState is Refetching when action is _FETCH and requestState and response already exists', () => {
+    test('request is Refetching when action is _FETCH and request and response already exists', () => {
         const data = pipeWith(
             EntityReducer(
                 {
-                    requestState: {TEST: RequestState.fetching()},
+                    request: {TEST: Message.fetching()},
                     response: {TEST: {}}
                 },
                 {type: 'ENTY_FETCH', meta: {responseKey: 'TEST'}}
             ),
-            getIn(['requestState', 'TEST'])
+            getIn(['request', 'TEST'])
         );
         expect(data.isRefetching).toBe(true);
     });
 
-    test('requestState will not be refecthing if two fetching fire in a row', () => {
+    test('request will not be refecthing if two fetching fire in a row', () => {
         let stateA = EntityReducer({}, {type: 'ENTY_FETCH', meta: {responseKey: 'foo'}});
         let stateB = EntityReducer(stateA, {type: 'ENTY_FETCH', meta: {responseKey: 'foo'}});
-        expect(stateB.requestState.foo.isRefetching).toBe(undefined);
-        expect(stateB.requestState.foo.isFetching).toBe(true);
+        expect(stateB.request.foo.isRefetching).toBe(undefined);
+        expect(stateB.request.foo.isFetching).toBe(true);
     });
 
     test('will not be set if action type does not match _(FETCH|ERROR|RECIEVE)', () => {
-        return pipeWith (
+        return pipeWith(
             EntityReducer(undefined, {type: 'nothing', meta: {responseKey: 'nothing'}}),
-            getIn(['requestState', 'nothing']),
+            getIn(['request', 'nothing']),
             value => expect(value).toBe(undefined)
         );
     });
 
-    // @FIXME: this is testing silly behaviour in the reducer.
-    // The reducer should not infer result keys from the action type
-    test('will be set to payload if the action matches  _ERROR', () => {
-        return pipeWith (
+    test('will be set to payload if the action is ENTITY_ERROR', () => {
+        return pipeWith(
             EntityReducer(undefined, {
                 type: 'ENTY_ERROR',
                 payload: 'errorPayload',
                 meta: {responseKey: 'TEST'}
             }),
-            getIn(['requestState', 'TEST']),
-            _ => _.value(),
-            value => expect(value).toBe('errorPayload')
+            getIn(['request', 'TEST']),
+            value => expect(value.isError).toBe(true)
         );
     });
 
@@ -326,18 +323,18 @@ describe('remove entity', () => {
 
 describe('ENTY_RESET', () => {
 
-    it('will delete response and set requestState to empty', () => {
+    it('will delete response and set request to empty', () => {
         const reducer = EntityReducerFactory({});
 
         const stateA = reducer(undefined, {type: 'ENTY_RECEIVE', payload: 'FOO', meta: {responseKey: '123'}});
         expect(stateA.response['123']).toBe('FOO');
-        expect(stateA.requestState['123'].isSuccess).toBe(true);
+        expect(stateA.request['123'].isSuccess).toBe(true);
         expect(stateA.stats.responseCount).toBe(1);
 
         const stateB = reducer(stateA, resetAction('123'));
         expect(stateB.response['123']).toBeUndefined();
-        expect(stateB.requestState['123'].isSuccess).toBeUndefined();
-        expect(stateB.requestState['123'].isEmpty).toBe(true);
+        expect(stateB.request['123'].isSuccess).toBeUndefined();
+        expect(stateB.request['123'].isEmpty).toBe(true);
         expect(stateB.stats.responseCount).toBe(2);
     });
 

@@ -61,7 +61,7 @@ export default (config) => (Component) => (props) => {
         .refetchingMap(() => <Spinner />)
         .errorMap(() => <ErrorHandler error={message.requestError}/>)
         .successMap(() => <Component {...props} />)
-        .value();
+        .value;
 }
 ```
 
@@ -83,7 +83,7 @@ export default (config) => (Component) => (props) => {
         .fetchingMap(() => <Spinner />)
         .refetchingMap(() => <Spinner />)
         .successMap(() => <Component {...props} />)
-        .value();
+        .value;
 }
 ```
 

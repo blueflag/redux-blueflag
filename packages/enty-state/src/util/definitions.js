@@ -13,7 +13,7 @@ export type State = {
     schemas: {[key: string]: Schema},
     response: {[key: string]: *},
     error: {[key: string]: *},
-    requestState: {[key: string]: *},
+    request: {[key: string]: *},
     entities: {[key: string]: *},
     stats: {
         responseCount: number

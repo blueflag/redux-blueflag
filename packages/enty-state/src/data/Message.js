@@ -1,39 +1,62 @@
 // @flow
-import RequestState from '../data/RequestState';
 import get from 'unmutable/lib/get';
 import getIn from 'unmutable/lib/getIn';
 
-
 type Request = (payload: mixed) => any;
 
-type MessageInput<R, E> = {
+type MessageInput = {
     removeEntity: (type: string, id: string) => void,
     request: Request,
-    requestError: E,
-    requestState?: RequestState,
+    requestError: any,
     reset: () => void,
-    response: R,
-    responseKey: string
+    response: any,
+    responseKey: string,
+    isEmpty?: ?boolean,
+    isFetching?: ?boolean,
+    isRefetching?: ?boolean,
+    isSuccess?: ?boolean,
+    isError?: ?boolean,
+    value?: any
 };
 
-export default class Message<R, E = void> {
+export default class Message {
+    // Data
+    responseKey: string;
+    requestError: any;
 
-    response: R;
-    requestError: E;
+    // Methods
+    response: any;
     request: Request;
     reset: () => void;
     removeEntity: (type: string, id: string) => void;
-    responseKey: string;
-    requestState: RequestState;
 
-    constructor(props: MessageInput<R, E>) {
+    // RequestState
+    value: any;
+    isEmpty: ?boolean;
+    isFetching: ?boolean;
+    isRefetching: ?boolean;
+    isSuccess: ?boolean;
+    isError: ?boolean;
+
+    constructor(props: MessageInput) {
         this.responseKey = props.responseKey;
         this.response = props.response;
-        this.requestState = props.requestState || RequestState.empty();
         this.requestError = props.requestError;
         this.request = props.request;
         this.reset = props.reset;
         this.removeEntity = props.removeEntity;
+        this.value = props.value;
+
+        const {isEmpty, isFetching, isRefetching, isSuccess, isError} = props;
+        this.isEmpty = isEmpty;
+        this.isFetching = isFetching;
+        this.isRefetching = isRefetching;
+        this.isSuccess = isSuccess;
+        this.isError = isError;
+
+        if(!isFetching && !isRefetching && !isSuccess && !isError) {
+            this.isEmpty = true;
+        }
     }
 
 
@@ -48,93 +71,71 @@ export default class Message<R, E = void> {
         return getIn(path, notFoundValue)(this.response || {});
     }
 
+    get value() {
+        return this.value;
+    }
+
 
     //
     // Updating Methods
 
-    update(updater: Function): Message<R, E> {
+    update(updater: Function): Message {
         return new Message(updater(this));
     }
 
-    updateRequestState(updater: Function, messageProps?: MessageInput<R, E> = {}): Message<R, E> {
-        return new Message({
-            ...messageProps,
-            requestState: updater(this.requestState)
-        });
+    _createMap = (bool: string, create: Function) => {
+        return (fn: Function) => {
+            // $FlowFixMe
+            if(this[bool]) {
+                let value = fn(this.value, this);
+                return value instanceof Message ? value : create({...this, value});
+            }
+            return this;
+        }
     }
 
 
     //
-    // empty
+    // State Functions
 
-    static empty(messageProps: MessageInput<R, E>): Message<R, E> {
-        return new Message({
-            ...messageProps,
-            response: undefined,
-            requestError: undefined,
-            requestState: RequestState.empty()
-        });
-    }
-    toEmpty(): Message<R, E> {
-        return this.updateRequestState(_ => _.toEmpty(), {...this});
-    }
+    static empty = (messageLike: mixed) => new Message({
+        ...messageLike,
+        response: undefined,
+        requestError: undefined,
+        isEmpty: true
+    });
+    emptyMap = this._createMap('isEmpty', Message.empty);
+    toEmpty = () => Message.empty(this);
 
+    static fetching = (messageLike: mixed) => new Message({
+        ...messageLike,
+        response: undefined,
+        requestError: undefined,
+        isFetching: true
+    });
+    fetchingMap = this._createMap('isFetching', Message.fetching);
+    toFetching = () => Message.fetching(this);
 
-    //
-    // fetching
+    static refetching = (messageLike: mixed) => new Message({
+        ...messageLike,
+        isRefetching: true
+    });
+    refetchingMap = this._createMap('isRefetching', Message.refetching);
+    toRefetching = () => Message.refetching(this);
 
-    static fetching(messageProps: MessageInput<R, E> = {}): Message<R, E> {
-        return new Message({
-            ...messageProps,
-            response: undefined,
-            requestState: RequestState.fetching()
-        });
-    }
-    toFetching(): Message<R, E> {
-        return this.updateRequestState(_ => _.toFetching(), {...this});
-    }
+    static success = (messageLike: mixed) => new Message({
+        ...messageLike,
+        isSuccess: true
+    });
+    successMap = this._createMap('isSuccess', Message.success);
+    toSuccess = () => Message.success(this);
 
+    static error = (messageLike: mixed) => new Message({
+        ...messageLike,
+        isError: true
+    });
+    errorMap = this._createMap('isError', Message.error);
+    toError = () => Message.error(this);
 
-    //
-    // refetching
-
-    static refetching(messageProps: MessageInput<R, E> = {}): Message<R, E> {
-        return new Message({
-            ...messageProps,
-            requestState: RequestState.refetching()
-        });
-    }
-    toRefetching(): Message<R, E> {
-        return this.updateRequestState(_ => _.toRefetching(), {...this});
-    }
-
-
-    //
-    // success
-
-    static success(messageProps: MessageInput<R, E> = {}): Message<R, E> {
-        return new Message({
-            ...messageProps,
-            requestState: RequestState.success()
-        });
-    }
-    toSuccess(): Message<R, E> {
-        return this.updateRequestState(_ => _.toSuccess(), {...this});
-    }
-
-
-
-    //
-    // Error
-
-    static error(messageProps: MessageInput<R, E> = {}): Message<R, E> {
-        return new Message({
-            ...messageProps,
-            requestState: RequestState.error()
-        });
-    }
-    toError(): Message<R, E> {
-        return this.updateRequestState(_ => _.toError(), {...this});
-    }
 }
 

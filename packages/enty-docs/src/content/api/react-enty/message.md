@@ -54,7 +54,7 @@ function UserAvatar(props) {
         .refetchingMap(() => <Loader/>)
         .successMap(() => <img src={userMessage.get('avatar')} />)
         .errorMap(() => <span>user not found :(</span>)
-        .value();
+        .value;
 }
 ```
 
@@ -70,7 +70,7 @@ function UserAvatar(props) {
     return userMessage.requestState
         .successMap(() => <img src={userMessage.get('avatar')} />)
         .errorMap(() => <span>{userMessage.requestError.message}</span>)
-        .value();
+        .value;
 }
 ```
 
