@@ -15,14 +15,16 @@ useRequest(): Message
 ### Fetch On Load
 
 ```jsx
-import {useAutoRequest} from 'react-enty';
+import React, {useEffect} from 'react';
 import api from './api';
 import Spinner from ./components/Spinner';
 import Error from ./components/Error';
 
 export default function Avatar(props) {
     const message = api.user.useRequest();
-    useAutoRequest(() => message.request({id: props.id}));
+    useEffect(() => {
+        message.request({id: props.id});
+    }, []);
 
     return <LoadingBoundary message={message} fallback={<Spinner/>} error={<Error />}>
         {({user}) => <img src={user.avatar} alt={user.name} />}
@@ -32,14 +34,16 @@ export default function Avatar(props) {
 
 ### Fetch On Prop Change
 ```jsx
-import {useAutoRequest} from 'react-enty';
+import React, {useEffect} from 'react';
 import api from './api';
 import Spinner from ./components/Spinner';
 import Error from ./components/Error';
 
 export default function Avatar(props) {
     const message = api.user.useRequest();
-    useAutoRequest(() => message.request({id: props.id}), [props.id]);
+    useEffect(() => {
+        message.request({id: props.id});
+    }, [props.id]);
 
     return <LoadingBoundary message={message} fallback={<Spinner/>} error={<Error />}>
         {({user}) => <img src={user.avatar} alt={user.name} />}
@@ -71,7 +75,7 @@ export default function Avatar(props) {
 ### Fetch Series
 
 ```jsx
-import {useAutoRequest} from 'react-enty';
+import React, {useEffect} from 'react';
 import api from './api';
 import Spinner from ./components/Spinner';
 import Error from ./components/Error';
@@ -82,10 +86,10 @@ export default function Avatar(props) {
     const loadingProps = {fallback: <Spinner />, error: <Error />};
     const renderUser = {({user}) => <img src={user.avatar} alt={user.name} />}
     
-    useAutoRequest(async () => {
-        await foo.request('foo');
-        await bar.request('bar');
-    });
+    useEffect(() => {
+        if(foo.isEmpty) foo.request('foo');
+        if(foo.isSuccess) bar.request('bar');
+    }, [foo]);
 
     return <Box>
         <LoadingBoundary message={foo} {...loadingProps} />{renderUser}</LoadingBoundary>
@@ -98,7 +102,7 @@ export default function Avatar(props) {
 ### Fetch Parallel
 
 ```jsx
-import {useAutoRequest} from 'react-enty';
+import React, {useEffect} from 'react';
 import api from './api';
 import Spinner from ./components/Spinner';
 import Error from ./components/Error';
@@ -109,10 +113,10 @@ export default function Avatar(props) {
     const loadingProps = {fallback: <Spinner />, error: <Error />};
     const renderUser = {({user}) => <img src={user.avatar} alt={user.name} />}
     
-    useAutoRequest(() => {
+    useEffect(() => {
         foo.request('foo');
         bar.request('bar');
-    });
+    }, []);
 
     return <Box>
         <LoadingBoundary message={foo} {...loadingProps} />{renderUser}</LoadingBoundary>

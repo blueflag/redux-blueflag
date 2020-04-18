@@ -86,8 +86,7 @@ Now we can use one of the request hocs exported from our api to request data.
 
 ```jsx
 // UserAvatar.js
-import React from 'react';
-import {useAutoRequest} from 'react-enty';
+import React, {useEffect} from 'react';
 import Api from './Api';
 import Spinner from './Spinner';
 import Error from './Error';
@@ -96,7 +95,9 @@ export default function UserAvatar(props) {
     const {id} = props;
     const userMessage = Api.user.get.useRequest();
 
-    useAutoRequest(() => userMessage.request({id}), [id]);
+    useEffect(() => {
+        userMessage.request({id})
+    }, [id]);
 
     return <LoadingBoundary fallback={Spinner} error={Error}>
         {({user}) => <img src={user.avatar} />}
