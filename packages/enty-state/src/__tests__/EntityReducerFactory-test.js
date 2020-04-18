@@ -1,6 +1,5 @@
 //@flow
 import EntityReducerFactory from '../EntityReducerFactory';
-import Message from '../data/Message';
 import {EntitySchema, ObjectSchema} from 'enty';
 import get from 'unmutable/lib/get';
 import getIn from 'unmutable/lib/getIn';
@@ -44,7 +43,7 @@ const INITIAL_STATE = {
     }
 };
 
-test('EntityReducerFactory normalizes a reuslt', () => {
+it('can normalize a result', () => {
     const examplePayload = {
         subreddit: {
             name: "MechanicalKeyboards",
@@ -63,40 +62,29 @@ test('EntityReducerFactory normalizes a reuslt', () => {
     };
 
     const state = EntityReducer(undefined, exampleReceiveAction);
-
-    expect(getIn(['entities', 'subreddit', 'MK', 'fullnameId'])(state))
-        .toBe(examplePayload.subreddit.fullnameId);
+    expect(state.entities.subreddit.MK.fullnameId).toBe(examplePayload.subreddit.fullnameId);
 });
 
 
 describe('EntityReducer request', () => {
     test('request is Fetching when action is _FETCH', () => {
-        const data = pipeWith(
-            EntityReducer(undefined, {type: 'ENTY_FETCH', meta: {responseKey: 'TEST'}}),
-            getIn(['request', 'TEST'])
-        );
-        expect(data.isFetching).toBe(true);
+        const state = EntityReducer(undefined, {type: 'ENTY_FETCH', meta: {responseKey: 'TEST'}});
+        expect(state.request.TEST.requestState).toBe('fetching');
     });
 
     test('request is Refetching when action is _FETCH and request and response already exists', () => {
-        const data = pipeWith(
-            EntityReducer(
-                {
-                    request: {TEST: Message.fetching()},
-                    response: {TEST: {}}
-                },
-                {type: 'ENTY_FETCH', meta: {responseKey: 'TEST'}}
-            ),
-            getIn(['request', 'TEST'])
+        const state = EntityReducer(
+            {request: {TEST: {response: {}}}},
+            {type: 'ENTY_FETCH', meta: {responseKey: 'TEST'}}
         );
-        expect(data.isRefetching).toBe(true);
+        expect(state.request.TEST.requestState).toBe('refetching');
     });
 
-    test('request will not be refecthing if two fetching fire in a row', () => {
-        let stateA = EntityReducer({}, {type: 'ENTY_FETCH', meta: {responseKey: 'foo'}});
-        let stateB = EntityReducer(stateA, {type: 'ENTY_FETCH', meta: {responseKey: 'foo'}});
-        expect(stateB.request.foo.isRefetching).toBe(false);
-        expect(stateB.request.foo.isFetching).toBe(true);
+    test('request will not be refetching if two fetching fire in a row', () => {
+        const stateA = EntityReducer({}, {type: 'ENTY_FETCH', meta: {responseKey: 'foo'}});
+        expect(stateA.request.foo.requestState).toBe('fetching');
+        const stateB = EntityReducer(stateA, {type: 'ENTY_FETCH', meta: {responseKey: 'foo'}});
+        expect(stateB.request.foo.requestState).toBe('fetching');
     });
 
     test('will not be set if action type does not match _(FETCH|ERROR|RECIEVE)', () => {
@@ -115,7 +103,7 @@ describe('EntityReducer request', () => {
                 meta: {responseKey: 'TEST'}
             }),
             getIn(['request', 'TEST']),
-            value => expect(value.isError).toBe(true)
+            value => expect(value.requestState).toBe('error')
         );
     });
 
@@ -129,8 +117,8 @@ describe('EntityReducer Config', () => {
         expect(EntityReducer(undefined, action('nothing')).baseSchema).toBe(schema);
     });
 
-    test('response starts with an empty object', () => {
-        expect(EntityReducer(undefined, action('nothing')).response).toEqual({});
+    test('request starts with an empty object', () => {
+        expect(EntityReducer(undefined, action('nothing')).request).toEqual({});
     });
 
     test('will not change state if actions do not match _(FETCH|RECIEVE|ERROR)', () => {
@@ -154,7 +142,7 @@ describe('EntityReducer Config', () => {
 });
 
 describe('EntityReducer Normalizing', () => {
-    test('it will store normalized results on _result.responseKey', () => {
+    test('it will store normalized results on response', () => {
         const action = {
             type: 'ENTY_RECEIVE',
             meta: {responseKey: 'TEST'},
@@ -168,7 +156,7 @@ describe('EntityReducer Normalizing', () => {
 
         return pipeWith(
             EntityReducer(undefined, action),
-            getIn(['response', 'TEST', 'subreddit']),
+            getIn(['request', 'TEST', 'response', 'subreddit']),
             key => expect(key).toBe('MK')
         );
     });
@@ -288,13 +276,13 @@ describe('no schema reducer', () => {
         const stateA = reducer(undefined, {type: 'ENTY_RECEIVE', payload: 'FOO', meta: {responseKey: '123'}});
 
         expect(stateA.entities).toEqual({});
-        expect(stateA.response['123']).toBe('FOO');
-        expect(stateA.response['456']).toBeUndefined();
+        expect(stateA.request['123'].response).toBe('FOO');
+        expect(stateA.request['456']).toBeUndefined();
         expect(stateA.stats.responseCount).toBe(1);
 
         const stateB = reducer(stateA, {type: 'ENTY_RECEIVE', payload: 'BAR', meta: {responseKey: '456'}});
-        expect(stateB.response['123']).toBe('FOO');
-        expect(stateB.response['456']).toBe('BAR');
+        expect(stateB.request['123'].response).toBe('FOO');
+        expect(stateB.request['456'].response).toBe('BAR');
         expect(stateB.stats.responseCount).toBe(2);
 
     });
@@ -327,14 +315,15 @@ describe('ENTY_RESET', () => {
         const reducer = EntityReducerFactory({});
 
         const stateA = reducer(undefined, {type: 'ENTY_RECEIVE', payload: 'FOO', meta: {responseKey: '123'}});
-        expect(stateA.response['123']).toBe('FOO');
-        expect(stateA.request['123'].isSuccess).toBe(true);
+        const requestA = stateA.request['123'];
+        expect(requestA.response).toBe('FOO');
+        expect(requestA.requestState).toBe('success');
         expect(stateA.stats.responseCount).toBe(1);
 
         const stateB = reducer(stateA, resetAction('123'));
-        expect(stateB.response['123']).toBeUndefined();
-        expect(stateB.request['123'].isSuccess).toBe(false);
-        expect(stateB.request['123'].isEmpty).toBe(true);
+        const requestB = stateB.request['123'];
+        expect(requestB.response).toBeUndefined();
+        expect(requestB.requestState).toBe('empty');
         expect(stateB.stats.responseCount).toBe(2);
     });
 

@@ -2,8 +2,6 @@
 import React from 'react';
 import EntityApi from '../EntityApi';
 import {ObjectSchema} from 'enty';
-//import {ArraySchema} from 'enty';
-//import {EntitySchema} from 'enty';
 import {useEffect} from 'react';
 import {asyncUpdate, ExpectsMessage} from './RequestSuite';
 

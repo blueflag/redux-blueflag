@@ -38,9 +38,7 @@ describe('Component', () => {
         }).toMatchObject([{
             baseSchema: undefined,
             entities: {foo: 'component'},
-            error: {},
-            requestState: {},
-            response: {},
+            request: {},
             schemas: {},
             stats: {responseCount: 0}
         }, expect.any(Function)]);
@@ -64,9 +62,7 @@ describe('Hoc', () => {
         )).toMatchObject([{
             baseSchema: undefined,
             entities: {foo: 'hoc'},
-            error: {},
-            requestState: {},
-            response: {},
+            request: {},
             schemas: {},
             stats: {responseCount: 0}
         }, expect.any(Function)]);

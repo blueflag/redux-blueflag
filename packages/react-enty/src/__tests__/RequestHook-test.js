@@ -145,10 +145,10 @@ describe('usage', () => {
             const aa = foo.useRequest();
             const bb = bar.useRequest();
             useEffect(() => {
-                if(aa.requestState.isEmpty) {
+                if(aa.isEmpty) {
                     aa.request('first');
                 }
-                if(aa.requestState.isSuccess) {
+                if(aa.isSuccess) {
                     bb.request('second');
                 }
             }, [aa]);

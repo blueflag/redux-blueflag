@@ -14,28 +14,21 @@ export default function LoggingReducer(state: State, action: Action, debugName: 
     group(`${debugName}: ${type}`);
 
     const {responseKey} = meta;
-    const requestState = state.request[responseKey];
-    const requestStateType = requestState && requestState
-        .emptyMap(() => 'empty')
-        .fetchingMap(() => 'fetching')
-        .refetchingMap(() => 'refetching')
-        .errorMap(() => 'error')
-        .successMap(() => 'success')
-        .value;
+    const {requestState, response, requestError} = state.request[responseKey] || {};
 
     if (type === 'ENTY_FETCH') {
-        log('responseKey:', responseKey, requestStateType);
+        log('responseKey:', responseKey, requestState);
     }
     else if (type === 'ENTY_RECEIVE') {
-        log('responseKey:', responseKey, requestStateType);
+        log('responseKey:', responseKey, requestState);
         log('stats.responseCount', state.stats.responseCount);
         log('payload:', payload);
-        log('response:', state.response[responseKey]);
+        log('response:', response);
         log('entities:', state.entities);
     }
     else if (type === 'ENTY_ERROR') {
-        log('responseKey:', responseKey, requestStateType);
-        log('error:', state.error[responseKey]);
+        log('responseKey:', responseKey, requestState);
+        log('error:', requestError);
     }
     else if (type === 'ENTY_REMOVE') {
         log('stats.responseCount', state.stats.responseCount);

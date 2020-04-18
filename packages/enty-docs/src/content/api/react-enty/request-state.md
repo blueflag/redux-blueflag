@@ -72,7 +72,7 @@ isError: boolean;
 
 ```jsx
 function User({message}) {
-    if(message.requestState.isFetching) {
+    if(message.isFetching) {
         return <Spinner />;
     }
     return <img src={message.resonse.user.avatar} />

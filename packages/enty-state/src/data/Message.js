@@ -44,7 +44,7 @@ export default class Message {
         this.reset = props.reset;
         this.removeEntity = props.removeEntity;
         this.value = props.value;
-        this.requestState = props.requestState;
+        this.requestState = props.requestState || 'empty';
 
         // $FlowFixMe
         Object.defineProperties(this, {
@@ -83,7 +83,7 @@ export default class Message {
                 return value instanceof Message ? value : create({...this, value});
             }
             return this;
-        }
+        };
     }
 
 

@@ -241,10 +241,10 @@ describe('usage', () => {
                     const {aa, bb} = props;
 
                     useEffect(() => {
-                        if(aa.requestState.isEmpty) {
+                        if(aa.isEmpty) {
                             aa.request('first');
                         }
-                        if(aa.requestState.isSuccess) {
+                        if(aa.isSuccess) {
                             bb.request('second');
                         }
                     }, [aa.requestState]);

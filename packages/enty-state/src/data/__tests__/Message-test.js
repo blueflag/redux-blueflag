@@ -81,7 +81,6 @@ describe('Message response methods', () => {
 });
 
 describe('Message methods', () => {
-    const message = Message.success(messageInput);
 
     it('will change with .to functions', () => {
         expect(Message.fetching().toEmpty().isEmpty).toBe(true);
@@ -90,7 +89,6 @@ describe('Message methods', () => {
         expect(Message.empty(messageInput).toSuccess().isSuccess).toBe(true);
         expect(Message.empty(messageInput).toError().isError).toBe(true);
     });
-
 
 });
 

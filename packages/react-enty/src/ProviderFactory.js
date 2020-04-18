@@ -39,9 +39,7 @@ export default function ProviderFactory(config: ProviderConfig): ProviderFactory
         const firstState = {
             baseSchema: schema,
             schemas: {},
-            response: {},
-            error: {},
-            requestState: {},
+            request: {},
             entities: {},
             stats: {
                 responseCount: 0

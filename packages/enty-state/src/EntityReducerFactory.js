@@ -4,17 +4,13 @@ import type {State, Action} from './util/definitions';
 
 import clone from 'unmutable/lib/clone';
 import get from 'unmutable/lib/get';
-import getIn from 'unmutable/lib/getIn';
 import merge from 'unmutable/lib/merge';
 import pipeWith from 'unmutable/lib/util/pipeWith';
 import set from 'unmutable/lib/set';
 import setIn from 'unmutable/lib/setIn';
-import hasIn from 'unmutable/lib/hasIn';
 import updateIn from 'unmutable/lib/updateIn';
 import deleteIn from 'unmutable/lib/deleteIn';
 import REMOVED_ENTITY from 'enty/lib/util/RemovedEntity';
-
-import Message from './data/Message';
 
 
 export default function EntityReducerFactory(config: {schema?: Schema}): Function {
@@ -26,10 +22,8 @@ export default function EntityReducerFactory(config: {schema?: Schema}): Functio
         let state = previousState || {
             baseSchema: schema,
             schemas: {},
-            response: {},
-            error: {},
-            request: {},
             entities: {},
+            request: {},
             stats: {
                 responseCount: 0
             }
@@ -37,8 +31,8 @@ export default function EntityReducerFactory(config: {schema?: Schema}): Functio
 
         const {responseKey} = meta;
         const requestPath = ['request', responseKey];
-        const responsePath = ['response', responseKey];
-        const errorPath = ['error', responseKey];
+        const requestStatePath = ['request', responseKey, 'requestState'];
+        const responsePath = ['request', responseKey, 'response'];
         const incrementResponseCount = updateIn(['stats', 'responseCount'], count => count + 1);
 
 
@@ -46,28 +40,30 @@ export default function EntityReducerFactory(config: {schema?: Schema}): Functio
 
         switch (type) {
             case 'ENTY_FETCH': {
-                let message = getIn(requestPath)(state);
-                let hasResponse = hasIn(responsePath)(state);
-                if(message && hasResponse) {
-                    state = setIn(requestPath, Message.refetching())(state);
-                } else {
-                    state = setIn(requestPath, Message.fetching())(state);
-                }
-                return state;
+                return pipeWith(
+                    state,
+                    updateIn(requestPath, (request = {}) => ({
+                        ...request,
+                        requestState: request.response ? 'refetching' : 'fetching'
+                    }))
+                );
             }
 
             case 'ENTY_ERROR':
                 return pipeWith(
                     state,
-                    setIn(requestPath, Message.error()),
-                    setIn(errorPath, payload)
+                    updateIn(requestPath, (request = {}) => ({
+                        ...request,
+                        requestState: 'error',
+                        requestError: payload
+                    }))
                 );
 
             case 'ENTY_RECEIVE':
 
                 // set success action before payload tests
                 // to make sure the request state is still updated even if there is no payload
-                state = setIn(requestPath, Message.success())(state);
+                state = setIn(['request', responseKey, 'requestState'], 'success')(state);
 
                 if(payload) {
                     if(schema) {
@@ -105,7 +101,7 @@ export default function EntityReducerFactory(config: {schema?: Schema}): Functio
                 return pipeWith(
                     state,
                     incrementResponseCount,
-                    setIn(requestPath, Message.empty()),
+                    setIn(requestStatePath, 'empty'),
                     deleteIn(responsePath)
                 );
 

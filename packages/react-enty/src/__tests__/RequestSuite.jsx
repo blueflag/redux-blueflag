@@ -4,7 +4,6 @@ import EntityApi from '../EntityApi';
 import {ObjectSchema, EntitySchema} from 'enty';
 import equals from 'unmutable/equals';
 import {UndefinedIdError} from 'enty/lib/util/Error';
-import RequestState from 'enty-state/lib/data/RequestState';
 
 
 //
@@ -43,8 +42,9 @@ function setupTests() {
             const SkipProvider = (props) => <Provider
                 initialState={{
                     entities: {},
-                    response: {baz: {data: 'initial-baz'}},
-                    requestState: {baz: RequestState.success()}
+                    request: {
+                        baz: {requestState: 'success', response: {data: 'initial-baz'}}
+                    }
                 }}
                 children={<Child {...props} />}
             />;
@@ -89,6 +89,7 @@ expect.extend([
         let passType = message[expectedState];
         let passResponse = equals(response)(expectedResponse);
         let pass = passType && passResponse;
+
         let type = input.find(([, state]) => message[state]) || [];
         return pass
             ? {pass: true, message: () => `expect(wrapper).not.${name}()\n\n` +

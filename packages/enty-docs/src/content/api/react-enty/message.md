@@ -114,16 +114,6 @@ const name = message.getIn(['user', 'name'], '-');
 ```
 
 
-### .updateRequestState()
-**type:** `(updater: RequestState => RequestState) => Message`  
-
-Update the requestState via a function. Allows the user to change a request state and pass the 
-message on. _Can be used to force the rendering of a specific branch._
-
-```js
-message.updateRequestState(requestState => requestState.toError());
-```
-
 ### .toEmpty()
 **type:** `() => Message<Empty>;`
 
