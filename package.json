@@ -8,9 +8,15 @@
     "build": "lerna run build --parallel --",
     "watch": "lerna run watch --parallel --",
     "test-all": "lerna run test-all --parallel --",
-    "deploy-docs": "yarn lerna --scope enty-docs run deploy"
+    "deploy-docs": "yarn lerna --scope enty-docs run deploy",
+    "storybook": "start-storybook"
   },
   "devDependencies": {
-    "lerna": "^3.4.3"
+    "@storybook/addon-docs": "^5.3.18",
+    "@storybook/react": "^5.3.18",
+    "babel-loader": "^8.1.0",
+    "lerna": "^3.4.3",
+    "react": "^16.13.1",
+    "react-is": "^16.13.1"
   }
 }
