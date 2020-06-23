@@ -1,4 +1,4 @@
-import {Entities, Schema, Schemas, ObjectSchema, REMOVED_ENTITY} from 'enty';
+import {EntitySchema, Entities, Schema, Schemas, ObjectSchema, REMOVED_ENTITY} from 'enty';
 import createRequestAction from './createRequestAction';
 
 type RequestState = 'empty' | 'fetching' | 'refetching' | 'success' | 'error';
@@ -33,12 +33,14 @@ export default class EntityStore<A> {
     _schema: Schemas;
 
     constructor(options: Options<A>) {
+        let schema = options.schema || new ObjectSchema({});
+        schema.shape.request = new EntitySchema({name: 'request'});
         this._callback = [];
         this._entity = {};
         this._request = {};
         this._schema = {};
         this._normalizeCount = 0;
-        this._rootSchema = options.schema || new ObjectSchema({});
+        this._rootSchema = schema;
         this._api = this._recurseApi(options.api, '');
     }
 
