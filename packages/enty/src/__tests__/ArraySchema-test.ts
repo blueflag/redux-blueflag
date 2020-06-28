@@ -5,7 +5,7 @@ import REMOVED_ENTITY from '../util/RemovedEntity';
 
 const foo = new EntitySchema({
     name: 'foo',
-    shape: new ObjectSchema({}),
+    shape: new ObjectSchema({})
 });
 class Foo {
     data: Array<string>;
@@ -28,8 +28,8 @@ test('ArraySchema can normalize arrays', () => {
     const schema = new ArraySchema(foo);
     const {entities, result} = schema.normalize([{id: '1'}, {id: '2'}]);
 
-    expect(entities.foo['1']).toEqual({id: '1'});
-    expect(entities.foo['2']).toEqual({id: '2'});
+    expect(entities.foo['1'].result).toEqual({id: '1'});
+    expect(entities.foo['2'].result).toEqual({id: '2'});
     expect(result).toEqual(['1', '2']);
 });
 
@@ -37,8 +37,8 @@ test('ArraySchema can normalize Lists', () => {
     const schema = new ArraySchema(foo);
     const {entities, result} = schema.normalize([{id: '1'}, {id: '2'}]);
 
-    expect(entities.foo['1']).toEqual({id: '1'});
-    expect(entities.foo['2']).toEqual({id: '2'});
+    expect(entities.foo['1'].result).toEqual({id: '1'});
+    expect(entities.foo['2'].result).toEqual({id: '2'});
     expect(result).toEqual(['1', '2']);
 });
 
@@ -47,20 +47,20 @@ test('ArraySchema can normalize nested things in arrays', () => {
     const {entities, result} = schema.normalize([{foo: {id: '1'}}]);
 
     expect(result).toEqual([{foo: '1'}]);
-    expect(entities.foo['1']).toEqual({id: '1'});
+    expect(entities.foo['1'].result).toEqual({id: '1'});
 });
 
 test('ArraySchema can denormalize arrays', () => {
     const schema = new ArraySchema(foo);
     const entities = {
         foo: {
-            '1': {id: '1'},
-            '2': {id: '2'},
-        },
+            '1': {normalizeTime: 0, result: {id: '1'}},
+            '2': {normalizeTime: 0, result: {id: '2'}}
+        }
     };
     expect(schema.denormalize({result: ['1', '2'], entities}).map((ii) => ii)).toEqual([
         {id: '1'},
-        {id: '2'},
+        {id: '2'}
     ]);
 
     expect(schema.denormalize({result: null, entities})).toEqual(null);
@@ -70,14 +70,14 @@ test('ArraySchema will not return deleted entities', () => {
     const schema = new ArraySchema(foo);
     const entities = {
         foo: {
-            '1': {id: '1'},
-            '2': {id: '2'},
-            '3': REMOVED_ENTITY,
-        },
+            '1': {normalizeTime: 0, result: {id: '1'}},
+            '2': {normalizeTime: 0, result: {id: '2'}},
+            '3': {normalizeTime: 0, result: REMOVED_ENTITY}
+        }
     };
     expect(schema.denormalize({result: ['1', '2', '3'], entities}).map((ii) => ii)).toEqual([
         {id: '1'},
-        {id: '2'},
+        {id: '2'}
     ]);
 
     expect(schema.denormalize({result: null, entities})).toEqual(null);
@@ -85,7 +85,7 @@ test('ArraySchema will not return deleted entities', () => {
 
 test('ArraySchema will not try to denormalize null values', () => {
     const schema = new ArraySchema(foo);
-    expect(schema.denormalize({result: null, entities: {}})).toEqual(null);
+    expect(schema.denormalize({result: null, entities: {}}, [])).toEqual(null);
 });
 
 test('ArraySchema will not mutate input objects', () => {
@@ -109,4 +109,3 @@ it('will default replace array on merge', () => {
 
     expect(schema.merge([1, 2, 3], [4, 5, 6])).toEqual([4, 5, 6]);
 });
-

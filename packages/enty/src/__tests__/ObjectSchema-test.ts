@@ -28,15 +28,7 @@ test('ObjectSchema can normalize objects', () => {
     let {entities, result} = schema.normalize({foo: {id: '1'}});
 
     expect(result).toEqual({foo: '1'});
-    expect(entities.foo['1']).toEqual({id: '1'});
-});
-
-test('ObjectSchema can normalize maps', () => {
-    const schema = new ObjectSchema({foo});
-    let {entities, result} = schema.normalize({foo: {id: '1'}});
-
-    expect(result).toEqual({foo: '1'});
-    expect(entities.foo['1']).toEqual({id: '1'});
+    expect(entities.foo['1'].result).toEqual({id: '1'});
 });
 
 test('ObjectSchema.denormalize is the inverse of ObjectSchema.normalize', () => {
@@ -57,7 +49,7 @@ test('ObjectSchema can normalize empty objects', () => {
 test('ObjectSchema can denormalize objects', () => {
     const schema = new ObjectSchema({foo});
 
-    const entities = {foo: {1: {id: '1'}}};
+    const entities = {foo: {'1': {normalizeTime: 0, result: {id: '1'}}}};
 
     expect(schema.denormalize({result: {foo: '1'}, entities})).toEqual({
         foo: {id: '1'}
@@ -67,7 +59,7 @@ test('ObjectSchema can denormalize objects', () => {
 test('ObjectSchema will not denormalize null values', () => {
     const schema = new ObjectSchema({foo});
 
-    const entities = {foo: {1: {id: '1'}}};
+    const entities = {foo: {'1': {normalizeTime: 0, result: {id: '1'}}}};
 
     expect(schema.denormalize({result: null, entities})).toEqual(null);
 });
@@ -75,11 +67,7 @@ test('ObjectSchema will not denormalize null values', () => {
 test('ObjectSchema will not denormalize unknown keys', () => {
     const schema = new ObjectSchema({foo});
 
-    const entities = {
-        foo: {
-            '1': {id: '1'}
-        }
-    };
+    const entities = {foo: {'1': {normalizeTime: 0, result: {id: '1'}}}};
 
     expect(schema.denormalize({result: {foo: '1', bar: '2'}, entities})).toEqual({
         foo: {id: '1'},
@@ -90,11 +78,7 @@ test('ObjectSchema will not denormalize unknown keys', () => {
 test('ObjectSchema will filter out REMOVED_ENTITY keys', () => {
     const schema = new ObjectSchema({foo});
 
-    const entities = {
-        foo: {
-            '1': REMOVED_ENTITY
-        }
-    };
+    const entities = {foo: {'1': {normalizeTime: 0, result: REMOVED_ENTITY}}};
 
     expect(schema.denormalize({result: {foo: '1'}, entities})).toEqual({});
 });
@@ -103,11 +87,7 @@ test('ObjectSchema can denormalize objects without mutating', () => {
     const schema = new ObjectSchema({foo});
     const result = {foo: '1'};
     const originalResult = {...result};
-    const entities = {
-        foo: {
-            '1': {id: '1'}
-        }
-    };
+    const entities = {foo: {'1': {normalizeTime: 0, result: {id: '1'}}}};
 
     schema.denormalize({result, entities});
     expect(result).toEqual(originalResult);

@@ -11,6 +11,5 @@
     "typeRoots": ["../../types", "./node_modules/@types"],
     "allowJs": true
   },
-  "exclude": ["src/**/*-test.ts"],
   "include": ["src"]
 }

@@ -9,18 +9,18 @@ import {UndefinedIdError} from './util/Error';
 import REMOVED_ENTITY from './util/RemovedEntity';
 import ObjectSchema from './ObjectSchema';
 
-export default class EntitySchema<A extends ShapeSchema<any>> {
+export default class EntitySchema<Shape extends ShapeSchema<any>, Data> {
     name: string;
-    shape: A | ObjectSchema<any>;
+    shape: Shape | ObjectSchema<any>;
     id: Id;
 
-    constructor(options: EntitySchemaOptions<A>) {
+    constructor(options: EntitySchemaOptions<Shape>) {
         this.name = options.name;
-        this.shape = options.shape || new ObjectSchema({});
+        this.shape = 'shape' in options ? options.shape : new ObjectSchema({});
         this.id = options.id || ((data) => data.id);
     }
 
-    normalize(data: unknown, entities: Entities = {}): NormalizeState {
+    normalize(data: Data, entities: Entities = {}): NormalizeState {
         let id = this.id(data);
         let previousEntity: unknown;
         let schemas = {};
@@ -40,13 +40,17 @@ export default class EntitySchema<A extends ShapeSchema<any>> {
             let _ = this.shape.normalize(data, entities);
             result = _.result;
             schemas = _.schemas;
-            previousEntity = entities[this.name][id];
+            previousEntity = entities[this.name][id]?.result;
         }
 
         // list this schema as one that has been used
         schemas[this.name] = this;
 
-        entities[this.name][id] = previousEntity
+        const normalizeTime = Date.now();
+
+        entities[this.name][id] = entities[this.name][id] || {normalizeTime, result: null};
+        entities[this.name][id].normalizeTime = normalizeTime;
+        entities[this.name][id].result = previousEntity
             ? this.shape.merge(previousEntity, result)
             : result;
 
@@ -57,10 +61,10 @@ export default class EntitySchema<A extends ShapeSchema<any>> {
         };
     }
 
-    denormalize(denormalizeState: DenormalizeState, path: Array<any> = []): any {
+    denormalize(denormalizeState: DenormalizeState, path: Array<any> = []): Data {
         const {result, entities} = denormalizeState;
         const {shape, name} = this;
-        const entity = entities?.[name]?.[result];
+        const entity = entities[name]?.[result]?.result;
 
         if (entity == null || entity === REMOVED_ENTITY || shape == null) {
             return entity;

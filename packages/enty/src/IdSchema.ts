@@ -5,7 +5,7 @@ import EntitySchema from './EntitySchema';
 /**
  * IdSchema
  */
-export default class IdSchema extends EntitySchema<any> {
+export default class IdSchema extends EntitySchema<any, any> {
     normalize(data: any, entities: Entities = {}): NormalizeState {
         const {result, schemas} = super.normalize({id: data}, entities);
         return {result, schemas, entities};

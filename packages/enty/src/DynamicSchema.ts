@@ -4,7 +4,7 @@ import {ShapeSchema} from './util/definitions';
 import {Entities} from './util/definitions';
 import EntitySchema from './EntitySchema';
 
-type DynamicShape<A> = (data: A) => ShapeSchema<any> | EntitySchema<any>;
+type DynamicShape<A> = (data: A) => ShapeSchema<any> | EntitySchema<any, A>;
 
 export default class DynamicSchema<A> {
     shape: DynamicShape<A>;
@@ -23,8 +23,8 @@ export default class DynamicSchema<A> {
             result: {
                 resultType: 'dynamicSchemaResult',
                 result,
-                schema,
-            },
+                schema
+            }
         };
     }
 

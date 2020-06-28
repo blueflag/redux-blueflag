@@ -28,13 +28,13 @@ test('DynamicSchema can choose an appropriate schema to normalize', () => {
     const data = [
         {type: 'foo', id: '0'},
         {type: 'bar', id: '1'},
-        {type: 'baz', id: '2'},
+        {type: 'baz', id: '2'}
     ];
     const {entities} = unknownArray.normalize(data);
 
-    expect(entities.foo['0']).toEqual(data[0]);
-    expect(entities.bar['1']).toEqual(data[1]);
-    expect(entities.baz['2']).toEqual(data[2]);
+    expect(entities.foo['0'].result).toEqual(data[0]);
+    expect(entities.bar['1'].result).toEqual(data[1]);
+    expect(entities.baz['2'].result).toEqual(data[2]);
 });
 
 test('DynamicSchema.denormalize is the inverse of DynamicSchema.normalize', () => {
@@ -42,7 +42,7 @@ test('DynamicSchema.denormalize is the inverse of DynamicSchema.normalize', () =
     const data = [
         {type: 'foo', id: '0'},
         {type: 'bar', id: '1'},
-        {type: 'baz', id: '2'},
+        {type: 'baz', id: '2'}
     ];
     const output = schema.denormalize(schema.normalize(data));
     expect(data).toEqual(output);
@@ -61,14 +61,13 @@ test('DynamicSchema.normalize on to existing data', () => {
 
     const second = [
         {type: 'bar', id: '1'},
-        {type: 'baz', id: '2'},
+        {type: 'baz', id: '2'}
     ];
 
     const {entities} = schema.normalize(first);
     const output = schema.normalize(second, entities);
 
-    expect(output.entities.foo['0']).toEqual(first[0]);
-    expect(output.entities.bar['1']).toEqual(second[0]);
-    expect(output.entities.baz['2']).toEqual(second[1]);
+    expect(output.entities.foo['0'].result).toEqual(first[0]);
+    expect(output.entities.bar['1'].result).toEqual(second[0]);
+    expect(output.entities.baz['2'].result).toEqual(second[1]);
 });
-

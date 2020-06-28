@@ -18,23 +18,16 @@ test('denormalize is almost the inverse of normalize', () => {
 
 test('normalize', () => {
     const data = {id: '1'};
-    const entities = {
-        foo: {
-            '1': data
-        }
-    };
-    expect(data).toEqual(new IdSchema(foo).normalize('1', entities).entities.foo['1']);
-    expect(data).toEqual(new IdSchema(foo).normalize('1', undefined).entities.foo['1']);
+    const entities = {foo: {'1': {normalizeTime: 0, result: data}}};
+
+    expect(data).toEqual(new IdSchema(foo).normalize('1', entities).entities.foo['1'].result);
+    expect(data).toEqual(new IdSchema(foo).normalize('1', undefined).entities.foo['1'].result);
 });
 
 test('denormalize', () => {
     const fooValue = new IdSchema(foo);
     const data = {id: '1'};
-    const entities = {
-        foo: {
-            '1': data
-        }
-    };
+    const entities = {foo: {'1': {normalizeTime: 0, result: data}}};
     expect(data).toEqual(fooValue.denormalize({result: '1', entities}));
     expect(data).toEqual(fooValue.denormalize({result: '1', entities}, undefined));
 });
